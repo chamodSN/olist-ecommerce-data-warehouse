@@ -1,0 +1,15 @@
+[project]
+name = "olist-ecommerce-data-warehouse"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "boto3>=1.43.51",
+    "great-expectations>=1.19.0",
+    "ipykernel>=7.3.0",
+    "jupyter>=1.1.1",
+    "pandas>=3.0.3",
+    "pyspark>=4.2.0",
+    "python-dotenv>=1.2.2",
+]
