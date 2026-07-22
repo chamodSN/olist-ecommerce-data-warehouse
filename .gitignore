@@ -31,7 +31,7 @@ htmlcov/
 
 # Jupyter Notebook
 .ipynb_checkpoints/
-    
+
 # Environment Variables & Secrets
 
 .env
@@ -53,6 +53,21 @@ data/raw/*.csv
 *.db
 *.sqlite
 *.sqlite3
+
+# Terraform
+
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # VS Code
 
@@ -99,3 +114,4 @@ logs/
 
 #personal files
 myfiles.txt
+/data/raw
