@@ -9,17 +9,25 @@ def validate_reviews():
     df = pd.read_csv(RAW_DIR / "olist_order_reviews_dataset.csv")
 
     context = gx.get_context()
-    validator = context.sources.pandas_default.read_dataframe(df)
+    data_source = context.data_sources.add_pandas("reviews_pandas_ds")
+    data_asset = data_source.add_dataframe_asset(name="reviews_asset")
+    batch_definition = data_asset.add_batch_definition_whole_dataframe("reviews_batch_def")
+    batch = batch_definition.get_batch(batch_parameters={"dataframe": df})
 
-    validator.expect_column_values_to_not_be_null("review_id")
-    validator.expect_column_values_to_not_be_null("order_id")
-    validator.expect_column_values_to_be_between("review_score", min_value=1, max_value=5)
+    suite = gx.ExpectationSuite(name="reviews_suite")
+    suite.add_expectation(gx.expectations.ExpectColumnValuesToNotBeNull(column="review_id"))
+    suite.add_expectation(gx.expectations.ExpectColumnValuesToNotBeNull(column="order_id"))
+    suite.add_expectation(
+        gx.expectations.ExpectColumnValuesToBeBetween(column="review_score", min_value=1, max_value=5)
+    )
 
     # From the recon notebook: review_id is NOT globally unique
     # Instead i have assert the compound key is unique.
-    validator.expect_compound_columns_to_be_unique(["review_id", "order_id"])
+    suite.add_expectation(
+        gx.expectations.ExpectCompoundColumnsToBeUnique(column_list=["review_id", "order_id"])
+    )
 
-    results = validator.validate()
+    results = batch.validate(suite)
     print(f"Reviews validation success: {results.success}")
     return results
 
