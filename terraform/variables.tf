@@ -21,3 +21,9 @@ variable "project_version"{
   description = "Project stage like dev/prod/QA"
   default     = "dev"
 }
+
+variable "redshift_admin_password"{
+  type        = string
+  description = "Admin password for redshift serverless namespace"
+  sensitive   = true
+}
