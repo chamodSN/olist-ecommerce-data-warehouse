@@ -6,6 +6,8 @@ import boto3
 from dotenv import load_dotenv
 from pprint import pprint
 
+import unicodedata
+
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO,
@@ -40,5 +42,13 @@ def read_latest_bronze_csv(entity: str, filename: str) -> pd.DataFrame:
     return pd.read_csv(s3_uri)
 
 
+def strip_accents(text: str) -> str:
+    if pd.isna(text):
+        return text
+    normalized_text = unicodedata.normalize('NFKD', str(text))
+    return "".join(c for c in normalized_text if not unicodedata.combining(c))
+
+
 if __name__ == '__main__':
-    read_latest_bronze_csv('orders', 'olist_orders_dataset.csv')
+    print(strip_accents('Olá, você está bem?'))
+    # read_latest_bronze_csv('orders', 'olist_orders_dataset.csv')
