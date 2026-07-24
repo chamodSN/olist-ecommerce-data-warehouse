@@ -42,13 +42,27 @@ def read_latest_bronze_csv(entity: str, filename: str) -> pd.DataFrame:
     return pd.read_csv(s3_uri)
 
 
+def write_silver_parquet(df: pd.DataFrame, entity: str) -> str:
+
+    s3_key = f"{entity}/{entity}.parquet"
+    s3_uri = f"s3://{SILVER_BUCKET_NAME}/{s3_key}"
+
+    df.to_parquet(
+        s3_uri,
+        engine="pyarrow",
+        compression="snappy",
+        index=False
+    )
+
+    logger.info(
+        f"Wrote {len(df)} rows to {s3_uri}"
+    )
+
+    return s3_uri
+
+
 def strip_accents(text: str) -> str:
     if pd.isna(text):
         return text
     normalized_text = unicodedata.normalize('NFKD', str(text))
     return "".join(c for c in normalized_text if not unicodedata.combining(c))
-
-
-if __name__ == '__main__':
-    print(strip_accents('Olá, você está bem?'))
-    # read_latest_bronze_csv('orders', 'olist_orders_dataset.csv')
