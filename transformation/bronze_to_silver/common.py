@@ -1,12 +1,10 @@
 import logging
 import os
+import unicodedata
 
 import pandas as pd
 import boto3
 from dotenv import load_dotenv
-from pprint import pprint
-
-import unicodedata
 
 load_dotenv()
 
