@@ -55,3 +55,15 @@ models:
           - dbt_utils.accepted_range:
               min_value: 1
               max_value: 5
+              
+  - name: fact_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['delivered', 'shipped', 'canceled', 'invoiced',
+                       'processing', 'created', 'approved', 'unavailable']
