@@ -47,3 +47,11 @@ models:
         tests:
           - dbt_utils.accepted_range:
               min_value: 0
+
+  - name: fact_reviews
+    columns:
+      - name: review_score
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 5
