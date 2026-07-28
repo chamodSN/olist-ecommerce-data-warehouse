@@ -40,3 +40,10 @@ models:
         tests:
           - unique
           - not_null
+
+  - name: fact_payments
+    columns:
+      - name: payment_value
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
