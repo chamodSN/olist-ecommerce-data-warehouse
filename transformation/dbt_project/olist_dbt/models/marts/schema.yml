@@ -41,6 +41,38 @@ models:
           - unique
           - not_null
 
+  - name: fact_order_items
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+      - name: product_key
+        tests:
+          - relationships:
+              to: ref('dim_products')
+              field: product_key
+      - name: seller_key
+        tests:
+          - relationships:
+              to: ref('dim_sellers')
+              field: seller_key
+      - name: price
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+  - name: fact_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['delivered', 'shipped', 'canceled', 'invoiced',
+                       'processing', 'created', 'approved', 'unavailable']
+
   - name: fact_payments
     columns:
       - name: payment_value
@@ -55,15 +87,3 @@ models:
           - dbt_utils.accepted_range:
               min_value: 1
               max_value: 5
-              
-  - name: fact_orders
-    columns:
-      - name: order_id
-        tests:
-          - unique
-          - not_null
-      - name: order_status
-        tests:
-          - accepted_values:
-              values: ['delivered', 'shipped', 'canceled', 'invoiced',
-                       'processing', 'created', 'approved', 'unavailable']
