@@ -14,7 +14,7 @@ WITH payment_rollup AS (
 review_rollup AS (
     SELECT
         order_id,
-        avg(review_score) as avg_review_score,
+        cast(avg(review_score) as decimal(3,2)) as avg_review_score,
         count(*) as review_count
     FROM {{ ref('stg_order_reviews') }}
     GROUP BY order_id
