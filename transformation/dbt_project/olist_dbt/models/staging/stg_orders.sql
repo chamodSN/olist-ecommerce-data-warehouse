@@ -7,5 +7,5 @@ select
     order_delivered_carrier_date,
     order_delivered_customer_date,
     order_estimated_delivery_date,
-    delivery_delay_days
+    cast(round(delivery_delay_days) as integer) as delivery_delay_days
 from {{ source('silver', 'orders') }}

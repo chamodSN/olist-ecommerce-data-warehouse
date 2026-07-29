@@ -91,5 +91,5 @@ with DAG(
         trigger_rule=TriggerRule.ALL_SUCCESS,  # only run if dbt_run succeeded
     )
 
-    # Dependency wiring -- this IS the DAG structure from Section 3.
+
     ingest_bronze >> run_data_quality_checks >> transform_tasks >> dbt_run >> dbt_test
