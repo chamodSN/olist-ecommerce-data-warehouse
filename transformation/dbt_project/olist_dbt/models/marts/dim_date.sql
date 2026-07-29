@@ -8,7 +8,7 @@ WITH date_spine AS (
         (DATE '2016-01-01' + i * interval '1 day')::DATE AS full_date
     FROM (
         SELECT row_number() over () - 1 as i
-        FROM stg_orders
+        FROM {{ ref('stg_orders') }}
         LIMIT 1200
     )
 )
