@@ -11,7 +11,7 @@ from pathlib import Path
 from botocore.exceptions import ClientError, NoCredentialsError
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 logging.basicConfig(
     level=logging.INFO,

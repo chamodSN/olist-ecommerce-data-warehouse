@@ -5,6 +5,7 @@ from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.utils.trigger_rule import TriggerRule
 
+import os
 
 default_args = {
     "owner": "olist_dw",
@@ -17,15 +18,19 @@ default_args = {
 
 def _run_ingestion():
     import sys
-    sys.path.insert(0, "/opt/airflow/project/ingestion")
+    sys.path.insert(0, "/opt/airflow/project")
     from src.ingestion.upload_to_bronze import main as ingestion_main
     ingestion_main()
 
 
 def _run_data_quality_checks():
     import sys
+    # data_quality/run_all_checks.py does `from expectations.x import y`
+    # (a bare import), so the data_quality/ folder itself must be on
+    # sys.path -- not the project root, and not a dotted "data_quality."
+    # import prefix.
     sys.path.insert(0, "/opt/airflow/project/data_quality")
-    from data_quality.run_all_checks import main as dq_main
+    from run_all_checks import main as dq_main
     dq_main()
 
 
@@ -34,7 +39,8 @@ def _make_transform_callable(entity_name: str):
         import sys
         sys.path.insert(
             0, "/opt/airflow/project/transformation/bronze_to_silver")
-        module = __import__(f"transform_{entity_name}", fromlist=["main"])
+        module = __import__(f"transform_{entity_name}", fromlist=[
+                            f"transform_{entity_name}"])
         getattr(module, f"transform_{entity_name}")()
     return _run
 
@@ -43,9 +49,9 @@ with DAG(
     dag_id="olist_data_warehouse_pipeline",
     default_args=default_args,
     description="Bronze ingestion -> DQ gate -> Silver transform -> Gold dbt build",
-    schedule_interval="@daily",  
+    schedule_interval="@daily",
     start_date=datetime(2026, 7, 1),
-    catchup=False, 
+    catchup=False,
     tags=["olist", "data-warehouse"],
 ) as dag:
 
@@ -78,7 +84,9 @@ with DAG(
             "cd /opt/airflow/project/transformation/dbt_project/olist_dbt && "
             "dbt run --profiles-dir ."
         ),
-        env={"REDSHIFT_PASSWORD": "{{ conn.redshift_olist_dw.password }}"},
+        # Merge with the container's existing env instead of replacing it --
+        # dbt needs PATH, HOME, and any AWS/other creds already present.
+        env={**os.environ, "REDSHIFT_PASSWORD": "{{ conn.redshift_olist_dw.password }}"},
     )
 
     dbt_test = BashOperator(
@@ -87,9 +95,8 @@ with DAG(
             "cd /opt/airflow/project/transformation/dbt_project/olist_dbt && "
             "dbt test --profiles-dir ."
         ),
-        env={"REDSHIFT_PASSWORD": "{{ conn.redshift_olist_dw.password }}"},
-        trigger_rule=TriggerRule.ALL_SUCCESS,  # only run if dbt_run succeeded
+        env={**os.environ, "REDSHIFT_PASSWORD": "{{ conn.redshift_olist_dw.password }}"},
+        trigger_rule=TriggerRule.ALL_SUCCESS,
     )
-
 
     ingest_bronze >> run_data_quality_checks >> transform_tasks >> dbt_run >> dbt_test
