@@ -78,10 +78,8 @@ with DAG(
         task_id="dbt_run",
         bash_command=(
             "cd /opt/airflow/project/transformation/dbt_project/olist_dbt && "
-            "dbt run --profiles-dir ."
+            "/opt/dbt_venv/bin/dbt run --profiles-dir ."
         ),
-        # Merge with the container's existing env instead of replacing it --
-        # dbt needs PATH, HOME, and any AWS/other creds already present.
         env={**os.environ, "REDSHIFT_PASSWORD": "{{ conn.redshift_olist_dw.password }}"},
     )
 
@@ -89,7 +87,7 @@ with DAG(
         task_id="dbt_test",
         bash_command=(
             "cd /opt/airflow/project/transformation/dbt_project/olist_dbt && "
-            "dbt test --profiles-dir ."
+            "/opt/dbt_venv/bin/dbt test --profiles-dir ."
         ),
         env={**os.environ, "REDSHIFT_PASSWORD": "{{ conn.redshift_olist_dw.password }}"},
         trigger_rule=TriggerRule.ALL_SUCCESS,

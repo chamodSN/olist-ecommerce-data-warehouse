@@ -1,0 +1,6 @@
+boto3
+great-expectations
+pandas
+pyarrow
+python-dotenv
+s3fs
