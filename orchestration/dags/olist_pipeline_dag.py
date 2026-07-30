@@ -25,10 +25,6 @@ def _run_ingestion():
 
 def _run_data_quality_checks():
     import sys
-    # data_quality/run_all_checks.py does `from expectations.x import y`
-    # (a bare import), so the data_quality/ folder itself must be on
-    # sys.path -- not the project root, and not a dotted "data_quality."
-    # import prefix.
     sys.path.insert(0, "/opt/airflow/project/data_quality")
     from run_all_checks import main as dq_main
     dq_main()
