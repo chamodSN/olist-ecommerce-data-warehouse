@@ -1,17 +1,3 @@
-# The IAM user itself
-resource "aws_iam_user" "olist_dw_dev" {
-  name = "olist-dw-dev"
-
-  tags = {
-    Project = var.project_name
-  }
-}
-
-# Programmatic access key for this user
-resource "aws_iam_access_key" "olist_dw_dev_key" {
-  user = aws_iam_user.olist_dw_dev.name
-}
-
 # The scoped policy, built directly from actual bucket resources
 
 data "aws_iam_policy_document" "olist_dw_s3_scoped" {
